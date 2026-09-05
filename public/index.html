@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Produção de Conteúdo — PrLeofelix</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="bg-glow bg-glow-3"></div>
+
+<header class="app-header glass">
+  <div class="header-left">
+    <img src="/img/logo.png" alt="PrLeofelix" class="logo">
+    <span class="header-title">Produção de Conteúdo <span class="handle">@PrLeofelix</span></span>
+  </div>
+  <button class="btn btn-green" id="btn-open-content-modal">+ Cadastrar Conteúdo</button>
+</header>
+
+<nav class="app-nav glass">
+  <button class="nav-btn active" data-view="calendario">Calendário</button>
+  <button class="nav-btn" data-view="lista">Lista</button>
+  <button class="nav-btn" data-view="ideias">Repositório de Ideias</button>
+  <button class="nav-btn" data-view="arquivo">Arquivo</button>
+  <button class="nav-btn" data-view="gerar">Gerar Conteúdo</button>
+  <button class="nav-btn" data-view="performance">Performance</button>
+</nav>
+
+<main class="app-main">
+
+  <!-- ===================== CALENDÁRIO ===================== -->
+  <section id="view-calendario" class="view active">
+    <div class="calendar-toolbar glass">
+      <div class="calendar-nav">
+        <button id="cal-prev" class="icon-btn" title="Anterior">‹</button>
+        <button id="cal-today" class="btn btn-ghost">Hoje</button>
+        <button id="cal-next" class="icon-btn" title="Próximo">›</button>
+        <span id="cal-label" class="calendar-label"></span>
+      </div>
+      <div class="calendar-modes">
+        <button class="mode-btn" data-mode="mes">Mês</button>
+        <button class="mode-btn active" data-mode="semana">Semana</button>
+        <button class="mode-btn" data-mode="dia">Dia</button>
+      </div>
+    </div>
+
+    <div id="calendar-body" class="glass calendar-body"></div>
+
+    <div class="legend">
+      <span class="legend-item"><i class="dot" style="background:var(--status-ativo)"></i>Ativo</span>
+      <span class="legend-item"><i class="dot" style="background:var(--status-pendente)"></i>Pendente</span>
+      <span class="legend-item"><i class="dot" style="background:var(--status-atrasado)"></i>Atrasado</span>
+      <span class="legend-item"><i class="dot" style="background:var(--status-concluido)"></i>Concluído</span>
+      <span class="legend-item"><i class="dot" style="background:var(--status-cancelado)"></i>Cancelado</span>
+      <span class="legend-item"><i class="dot" style="background:var(--status-inativo);border:1px solid rgba(255,255,255,.4)"></i>Inativo</span>
+    </div>
+  </section>
+
+  <!-- ===================== LISTA ===================== -->
+  <section id="view-lista" class="view">
+    <div class="glass table-wrap">
+      <table class="data-table" id="table-lista">
+        <thead>
+          <tr class="col-headers">
+            <th data-key="dataPublicacao">Data</th>
+            <th data-key="hora">Hora</th>
+            <th data-key="tipo">Tipo</th>
+            <th data-key="veiculo">Veículo</th>
+            <th data-key="titulo">Título</th>
+            <th data-key="descricao">Descrição</th>
+            <th data-key="status">Status</th>
+            <th class="col-acoes">Ações</th>
+          </tr>
+          <tr class="col-filters">
+            <th><input type="text" data-filter="dataPublicacao" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="hora" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="tipo" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="veiculo" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="titulo" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="descricao" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="status" placeholder="Buscar..."></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="lista-tbody"></tbody>
+      </table>
+      <p class="empty-msg" id="lista-empty" style="display:none;">Nenhum conteúdo cadastrado ainda.</p>
+    </div>
+  </section>
+
+  <!-- ===================== REPOSITÓRIO DE IDEIAS ===================== -->
+  <section id="view-ideias" class="view">
+    <div class="section-toolbar">
+      <button class="btn btn-green" id="btn-open-idea-modal">+ Cadastrar Ideia</button>
+    </div>
+    <div class="glass table-wrap">
+      <table class="data-table" id="table-ideias">
+        <thead>
+          <tr class="col-headers">
+            <th data-key="titulo">Título</th>
+            <th data-key="descricao">Descrição</th>
+            <th data-key="link">Link</th>
+            <th class="col-acoes">Ações</th>
+          </tr>
+          <tr class="col-filters">
+            <th><input type="text" data-filter="titulo" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="descricao" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="link" placeholder="Buscar..."></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="ideias-tbody"></tbody>
+      </table>
+      <p class="empty-msg" id="ideias-empty" style="display:none;">Nenhuma ideia cadastrada ainda.</p>
+    </div>
+  </section>
+
+  <!-- ===================== ARQUIVO ===================== -->
+  <section id="view-arquivo" class="view">
+    <div class="glass table-wrap">
+      <table class="data-table" id="table-arquivo">
+        <thead>
+          <tr class="col-headers">
+            <th data-key="dataPublicacao">Data</th>
+            <th data-key="tipo">Tipo</th>
+            <th data-key="veiculo">Veículo</th>
+            <th data-key="titulo">Título</th>
+            <th data-key="descricao">Descrição</th>
+            <th data-key="status">Status</th>
+            <th class="col-acoes">Ações</th>
+          </tr>
+          <tr class="col-filters">
+            <th><input type="text" data-filter="dataPublicacao" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="tipo" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="veiculo" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="titulo" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="descricao" placeholder="Buscar..."></th>
+            <th><input type="text" data-filter="status" placeholder="Buscar..."></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="arquivo-tbody"></tbody>
+      </table>
+      <p class="empty-msg" id="arquivo-empty" style="display:none;">Nenhum conteúdo arquivado.</p>
+    </div>
+  </section>
+
+  <!-- ===================== GERAR CONTEÚDO ===================== -->
+  <section id="view-gerar" class="view">
+    <div class="glass gerar-panel">
+      <div class="gerar-header">
+        <div>
+          <h3>Equipe de Conteúdo — 7 agentes</h3>
+          <p class="gerar-sub">Pesquisador → Escritor de Ganchos → Roteirista → Designer → Publicador. Nada é publicado, agendado ou enviado sem sua aprovação.</p>
+        </div>
+        <div class="gerar-status">
+          <span id="gerar-status-badge" class="status-badge status-INATIVO">Ocioso</span>
+          <span id="gerar-cost" class="gerar-cost"></span>
+        </div>
+      </div>
+
+      <div class="gerar-artifacts">
+        <span class="gerar-label">Ver arquivos gerados</span>
+        <div class="gerar-artifact-chips">
+          <button type="button" class="chip-btn" data-artifact="briefing">Briefing</button>
+          <button type="button" class="chip-btn" data-artifact="research">Pesquisa</button>
+          <button type="button" class="chip-btn" data-artifact="hooks">Ganchos</button>
+          <button type="button" class="chip-btn" data-artifact="script">Roteiro</button>
+          <button type="button" class="chip-btn" data-artifact="design-brief">Design</button>
+          <button type="button" class="chip-btn" data-artifact="publishing">Publicação</button>
+          <button type="button" class="chip-btn" data-artifact="performance">Performance</button>
+        </div>
+      </div>
+
+      <span class="gerar-label">Conversa (aparece aqui, você não digita nesta caixa)</span>
+      <div id="gerar-log" class="gerar-log">
+        <p class="gerar-empty">Ainda não há nada aqui. Escreva sua mensagem na caixa de baixo e clique em Gerar. A equipe pode parar no meio pra te fazer uma pergunta, é normal, é só responder ali embaixo também.</p>
+      </div>
+
+      <span class="gerar-label">Sua mensagem (digite aqui)</span>
+      <form id="gerar-form" class="gerar-form">
+        <textarea id="gerar-input" rows="2" placeholder='Ex.: "Martelada sobre paternidade ausente" ou "VOD do dia 5, id 461514e072505718"'></textarea>
+        <div class="gerar-form-actions">
+          <button type="button" class="btn btn-ghost" id="gerar-reset-btn">Novo ciclo</button>
+          <button type="submit" class="btn btn-green" id="gerar-submit-btn">Gerar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== PERFORMANCE ===================== -->
+  <section id="view-performance" class="view">
+    <h2 class="perf-page-title">Performance das Redes Sociais</h2>
+    <div class="performance-toolbar glass">
+      <div class="calendar-modes" id="perf-modes">
+        <button class="mode-btn active" data-perf-mode="semana">Relatório da Semana</button>
+        <button class="mode-btn" data-perf-mode="comparativo">Comparativo com a Semana Anterior</button>
+        <button class="mode-btn" data-perf-mode="mes">Visão Geral do Mês</button>
+      </div>
+      <div class="perf-actions">
+        <button class="icon-btn" id="perf-prev" title="Anterior">‹</button>
+        <span class="perf-week-label" id="perf-week-label"></span>
+        <button class="icon-btn" id="perf-next" title="Próximo">›</button>
+        <button class="btn btn-blue" id="perf-fetch-btn">Buscar automaticamente</button>
+        <button class="btn btn-green" id="perf-edit-btn">Lançar números</button>
+        <a href="/admin-integracoes.html" class="btn btn-ghost">Integrações</a>
+      </div>
+    </div>
+    <div id="perf-content"></div>
+  </section>
+
+</main>
+
+<!-- ===================== MODAL: CADASTRAR/EDITAR CONTEÚDO ===================== -->
+<div class="modal-overlay" id="content-modal-overlay">
+  <div class="modal glass modal-lg">
+    <div class="modal-header">
+      <h2 id="content-modal-title">Cadastrar Conteúdo</h2>
+      <button class="icon-btn" id="content-modal-close">✕</button>
+    </div>
+    <form id="content-form">
+      <input type="hidden" id="content-id">
+
+      <div class="form-two-col">
+        <div class="form-col">
+          <div class="form-field">
+            <label>Tipo de Conteúdo</label>
+            <select id="f-tipo" required>
+              <option value="">Selecione</option>
+              <option>VOD</option>
+              <option>Corte VOD</option>
+              <option>Martelada</option>
+              <option>Reels</option>
+              <option>Fura Bolha</option>
+              <option>Frase</option>
+              <option>À Mesa Forja</option>
+              <option>Foto</option>
+              <option>Lagocast</option>
+              <option>Post</option>
+              <option>Story</option>
+              <option>Artigo</option>
+              <option>Outro</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label>Pilar HAMMER <span class="field-hint">(pode marcar mais de um)</span></label>
+            <div class="multiselect" id="f-pilar-dropdown">
+              <button type="button" class="multiselect-toggle" id="f-pilar-toggle">
+                <span id="f-pilar-toggle-text">Selecione</span>
+                <span class="multiselect-arrow">▾</span>
+              </button>
+              <div class="multiselect-panel" id="f-pilar-panel">
+                <label class="multiselect-option"><input type="checkbox" data-value="H — Honra a Deus"> H — Honra a Deus</label>
+                <label class="multiselect-option"><input type="checkbox" data-value="A — Autorresponsabilidade"> A — Autorresponsabilidade</label>
+                <label class="multiselect-option"><input type="checkbox" data-value="M — Maturidade"> M — Maturidade</label>
+                <label class="multiselect-option"><input type="checkbox" data-value="M — Missão"> M — Missão</label>
+                <label class="multiselect-option"><input type="checkbox" data-value="E — Espírito Santo"> E — Espírito Santo</label>
+                <label class="multiselect-option"><input type="checkbox" data-value="R — Relacionamentos"> R — Relacionamentos</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Título</label>
+            <input type="text" id="f-titulo" placeholder="Título curto do conteúdo" required>
+          </div>
+
+          <div class="form-field">
+            <label>Veículo</label>
+            <select id="f-veiculo" required>
+              <option value="">Selecione</option>
+              <option>Site</option>
+              <option>Youtube</option>
+              <option>Instagram</option>
+              <option>Tik Tok</option>
+              <option>X</option>
+              <option>Threads</option>
+              <option>Outro</option>
+            </select>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Data de Publicação</label>
+              <input type="datetime-local" id="f-data" required>
+            </div>
+            <div class="form-field">
+              <label>Status</label>
+              <select id="f-status" required>
+                <option value="ATIVO">Ativo</option>
+                <option value="PENDENTE" selected>Pendente</option>
+                <option value="ATRASADO">Atrasado</option>
+                <option value="CONCLUÍDO">Concluído</option>
+                <option value="CANCELADO">Cancelado</option>
+                <option value="INATIVO">Inativo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Link</label>
+            <input type="url" id="f-link" placeholder="https://...">
+          </div>
+
+          <div class="form-field">
+            <label>Tags <span class="field-hint">(tags mais virais para o vídeo, separadas por vírgula)</span></label>
+            <input type="text" id="f-tags" placeholder="ex: paternidade, homens de fé, pr leo felix">
+          </div>
+
+          <div class="form-field">
+            <label>Arquivo (vídeo, fotos, frase, etc.)</label>
+            <input type="file" id="f-arquivos" multiple>
+            <div id="existing-files" class="existing-files"></div>
+          </div>
+        </div>
+
+        <div class="form-col">
+          <div class="form-field form-field-grow">
+            <label>Descrição / Legenda</label>
+            <textarea id="f-descricao" rows="10" placeholder="Texto completo, legenda..."></textarea>
+          </div>
+
+          <div class="form-field form-field-grow form-field-grow-lg">
+            <div class="field-label-row">
+              <label>Roteiro</label>
+              <button type="button" class="btn btn-blue" id="btn-ler-roteiro">Ler Roteiro</button>
+            </div>
+            <textarea id="f-roteiro" rows="16" placeholder="Gancho, desenvolvimento, aplicação prática, CTA..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="content-delete-btn" style="display:none;">Excluir</button>
+        <div class="modal-actions-right">
+          <button type="button" class="btn btn-ghost" id="content-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-green">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== MODAL: CADASTRAR/EDITAR IDEIA ===================== -->
+<div class="modal-overlay" id="idea-modal-overlay">
+  <div class="modal glass modal-sm">
+    <div class="modal-header">
+      <h2 id="idea-modal-title">Cadastrar Ideia</h2>
+      <button class="icon-btn" id="idea-modal-close">✕</button>
+    </div>
+    <form id="idea-form">
+      <input type="hidden" id="idea-id">
+      <div class="form-field">
+        <label>Título</label>
+        <input type="text" id="i-titulo" required>
+      </div>
+      <div class="form-field">
+        <label>Descrição</label>
+        <textarea id="i-descricao" rows="4"></textarea>
+      </div>
+      <div class="form-field">
+        <label>Link</label>
+        <input type="url" id="i-link" placeholder="https://...">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="idea-delete-btn" style="display:none;">Excluir</button>
+        <div class="modal-actions-right">
+          <button type="button" class="btn btn-ghost" id="idea-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-green">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== MODAL: LANÇAR NÚMEROS DA SEMANA ===================== -->
+<div class="modal-overlay" id="perf-modal-overlay">
+  <div class="modal glass modal-lg">
+    <div class="modal-header">
+      <h2 id="perf-modal-title">Lançar números da semana</h2>
+      <button class="icon-btn" id="perf-modal-close">✕</button>
+    </div>
+    <form id="perf-form">
+      <div class="form-two-col">
+        <div class="form-col">
+          <span class="gerar-label">📈 Instagram — Crescimento &amp; Alcance</span>
+          <div class="form-grid">
+            <div class="form-field"><label>Seguidores</label><input type="number" id="pf-ig-followers" min="0"></div>
+            <div class="form-field"><label>Contas alcançadas</label><input type="number" id="pf-ig-reach" min="0"></div>
+            <div class="form-field"><label>Impressões</label><input type="number" id="pf-ig-impressions" min="0"></div>
+            <div class="form-field"><label>Visitas ao perfil</label><input type="number" id="pf-ig-profileVisits" min="0"></div>
+          </div>
+          <span class="gerar-label">💬 Instagram — Engajamento</span>
+          <div class="form-grid">
+            <div class="form-field"><label>Curtidas</label><input type="number" id="pf-ig-likes" min="0"></div>
+            <div class="form-field"><label>Comentários</label><input type="number" id="pf-ig-comments" min="0"></div>
+            <div class="form-field"><label>Compartilhamentos</label><input type="number" id="pf-ig-shares" min="0"></div>
+            <div class="form-field"><label>Salvamentos</label><input type="number" id="pf-ig-saves" min="0"></div>
+          </div>
+          <div class="form-field">
+            <label>Taxa de engajamento (%) <span class="field-hint">deixe em branco pra calcular automático</span></label>
+            <input type="number" step="0.01" id="pf-ig-engagementRate">
+          </div>
+        </div>
+
+        <div class="form-col">
+          <span class="gerar-label">🎬 Stories</span>
+          <div class="form-grid">
+            <div class="form-field"><label>Stories publicados</label><input type="number" id="pf-st-published" min="0"></div>
+            <div class="form-field"><label>Visualizações</label><input type="number" id="pf-st-views" min="0"></div>
+            <div class="form-field"><label>Respostas</label><input type="number" id="pf-st-replies" min="0"></div>
+            <div class="form-field"><label>Saídas</label><input type="number" id="pf-st-exits" min="0"></div>
+          </div>
+
+          <span class="gerar-label">▶️ YouTube</span>
+          <div class="form-grid">
+            <div class="form-field"><label>Inscritos (total)</label><input type="number" id="pf-yt-subscribers" min="0"></div>
+            <div class="form-field"><label>Inscritos ganhos</label><input type="number" id="pf-yt-subscribersGained"></div>
+            <div class="form-field"><label>Visualizações</label><input type="number" id="pf-yt-views" min="0"></div>
+            <div class="form-field"><label>Tempo de exibição (h)</label><input type="number" step="0.1" id="pf-yt-watchTimeHours" min="0"></div>
+            <div class="form-field"><label>Duração média (segundos)</label><input type="number" id="pf-yt-avgViewDurationSec" min="0"></div>
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label>Impressões <span class="field-hint">manual — aba Alcance do Studio</span></label>
+              <input type="number" id="pf-yt-impressions" min="0">
+            </div>
+            <div class="form-field">
+              <label>CTR (%) <span class="field-hint">manual — aba Alcance do Studio</span></label>
+              <input type="number" step="0.01" id="pf-yt-ctr">
+            </div>
+          </div>
+
+          <div class="form-field form-field-grow">
+            <label>Notas manuais <span class="field-hint">contexto que o diagnóstico automático não sabe (viagem, campanha, feriado...)</span></label>
+            <textarea id="pf-notas" rows="4"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <div></div>
+        <div class="modal-actions-right">
+          <button type="button" class="btn btn-ghost" id="perf-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-green">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== MODAL: POST DA SEMANA ===================== -->
+<div class="modal-overlay" id="perf-post-modal-overlay">
+  <div class="modal glass modal-sm">
+    <div class="modal-header">
+      <h2>Adicionar post da semana</h2>
+      <button class="icon-btn" id="perf-post-modal-close">✕</button>
+    </div>
+    <form id="perf-post-form">
+      <div class="form-field">
+        <label>Plataforma</label>
+        <select id="pp-platform" required>
+          <option value="instagram">Instagram</option>
+          <option value="youtube">YouTube</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Título / legenda curta</label><input type="text" id="pp-titulo" required></div>
+      <div class="form-field"><label>Link</label><input type="url" id="pp-url" placeholder="https://..."></div>
+      <div class="form-grid">
+        <div class="form-field"><label>Curtidas</label><input type="number" id="pp-likes" min="0"></div>
+        <div class="form-field"><label>Comentários</label><input type="number" id="pp-comments" min="0"></div>
+        <div class="form-field"><label>Compartilhamentos</label><input type="number" id="pp-shares" min="0"></div>
+        <div class="form-field"><label>Salvamentos</label><input type="number" id="pp-saves" min="0"></div>
+        <div class="form-field"><label>Alcance</label><input type="number" id="pp-reach" min="0"></div>
+        <div class="form-field"><label>Visualizações</label><input type="number" id="pp-views" min="0"></div>
+      </div>
+      <div class="form-field">
+        <label>Taxa de engajamento (%) <span class="field-hint">em branco pra calcular pelo alcance</span></label>
+        <input type="number" step="0.01" id="pp-engagementRate">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="perf-post-delete-btn" style="display:none;">Excluir</button>
+        <div class="modal-actions-right">
+          <button type="button" class="btn btn-ghost" id="perf-post-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-green">Salvar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== MODAL: CONFIRMAÇÃO ===================== -->
+<div class="modal-overlay" id="confirm-modal-overlay">
+  <div class="modal glass modal-sm">
+    <div class="modal-header">
+      <h2>Confirmar ação</h2>
+      <button class="icon-btn" id="confirm-modal-close">✕</button>
+    </div>
+    <p id="confirm-modal-message" class="confirm-message"></p>
+    <div class="modal-actions">
+      <div></div>
+      <div class="modal-actions-right">
+        <button type="button" class="btn btn-ghost" id="confirm-modal-cancel">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirm-modal-ok">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/performance.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administração de Integrações — PrLeofelix</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="bg-glow bg-glow-3"></div>
+
+<header class="app-header glass">
+  <div class="header-left">
+    <img src="/img/logo.png" alt="PrLeofelix" class="logo">
+    <span class="header-title">Administração de Integrações <span class="handle">@PrLeofelix</span></span>
+  </div>
+  <div class="header-right">
+    <a href="/index.html#performance" class="btn btn-ghost">← Voltar pra Performance</a>
+    <button class="btn btn-ghost" id="btn-logout">Sair</button>
+  </div>
+</header>
+
+<main class="app-main">
+  <div id="admin-banner" class="admin-banner" style="display:none;"></div>
+
+  <div class="integrations-grid">
+
+    <section class="glass integration-card">
+      <div class="integration-card-head">
+        <h2>Instagram</h2>
+        <span id="ig-status-badge" class="status-badge status-INATIVO">Verificando…</span>
+      </div>
+      <p class="integration-desc">Conecte a conta comercial <b>@prleofelix</b> (via Página do Facebook vinculada) para buscar alcance, impressões, engajamento e Stories automaticamente toda sexta-feira.</p>
+      <dl class="integration-meta" id="ig-meta"></dl>
+      <div class="integration-actions">
+        <a class="btn btn-green" id="ig-connect-btn" href="/api/integrations/instagram/connect">Conectar Instagram</a>
+        <button class="btn btn-danger" id="ig-disconnect-btn" style="display:none;">Desconectar</button>
+      </div>
+    </section>
+
+    <section class="glass integration-card">
+      <div class="integration-card-head">
+        <h2>YouTube</h2>
+        <span id="yt-status-badge" class="status-badge status-INATIVO">Verificando…</span>
+      </div>
+      <p class="integration-desc">Conecte o canal <b>PrLeofelix</b> para buscar inscritos, visualizações, tempo de exibição e retenção automaticamente. Impressões e CTR continuam sendo lançados manualmente — o Google não expõe esses dois campos pela API.</p>
+      <dl class="integration-meta" id="yt-meta"></dl>
+      <div class="integration-actions">
+        <a class="btn btn-green" id="yt-connect-btn" href="/api/integrations/youtube/connect">Conectar YouTube</a>
+        <button class="btn btn-danger" id="yt-disconnect-btn" style="display:none;">Desconectar</button>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="glass integration-card" style="margin-top:20px;">
+    <h2>Rotina agendada</h2>
+    <p class="integration-desc">A busca automática roda toda sexta-feira às 10h (horário de Brasília). O botão "Buscar automaticamente" na página de Performance dispara a mesma busca sob demanda, a qualquer momento.</p>
+  </div>
+</main>
+
+<script src="/js/admin-integracoes.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acesso — Performance PrLeofelix</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+<div class="bg-glow bg-glow-3"></div>
+
+<main class="login-wrap">
+  <form class="glass login-card" id="login-form">
+    <img src="/img/logo.png" alt="PrLeofelix" class="login-logo">
+    <h1>Área restrita</h1>
+    <p class="login-sub">Performance das Redes Sociais &amp; Administração de Integrações.</p>
+    <div class="form-field">
+      <label>Código de acesso</label>
+      <input type="password" id="login-code" autocomplete="current-password" required autofocus>
+    </div>
+    <p class="login-error" id="login-error" style="display:none;"></p>
+    <button type="submit" class="btn btn-green login-btn">Entrar</button>
+  </form>
+</main>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  const next = params.get('next') || '/';
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = document.getElementById('login-code').value;
+    const errorEl = document.getElementById('login-error');
+    errorEl.style.display = 'none';
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errorEl.textContent = data.error || 'Não foi possível entrar.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      location.href = next;
+    } catch (err) {
+      errorEl.textContent = 'Erro de conexão. Tente novamente.';
+      errorEl.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>

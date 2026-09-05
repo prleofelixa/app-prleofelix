@@ -1,0 +1,61 @@
+{
+  "identity": {
+    "name": "Pr. Leo Felix",
+    "designation": "Marteladas — Forjados",
+    "logo_path": "img/logo.png",
+    "logo_position": "bottom-left",
+    "logo_size": "small"
+  },
+  "platform": {
+    "primary": "instagram",
+    "default_width": 1080,
+    "default_height": 1440
+  },
+  "typography": {
+    "display_font": "Bebas Neue",
+    "display_weights": [400],
+    "body_font": "Rawline",
+    "body_weights": [600, 700],
+    "body_font_source": "self-hosted (not on Google Fonts) — files in carrossel/*/fonts/rawline-600.woff, rawline-700.woff, @font-face declared per-export",
+    "mono_font": "JetBrains Mono",
+    "mono_weights": [400, 600],
+    "google_fonts_url": "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap"
+  },
+  "colors": {
+    "background": "#101010",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "rgba(255,255,255,0.62)",
+    "text_muted": "rgba(255,255,255,0.35)",
+    "accent": "#ffba00",
+    "accent_gradient": "linear-gradient(to top, #915200, #ffba00)",
+    "accent_glow": "rgba(255,186,0,0.5)",
+    "card_bg": "rgba(255,255,255,0.05)",
+    "card_border": "rgba(255,255,255,0.09)"
+  },
+  "style": {
+    "vibe": "bold-editorial",
+    "content_type": "thought-leadership",
+    "border_radius": "4px",
+    "base_padding": "72px",
+    "grid_unit": 8,
+    "title_rule": "Bebas Neue — accent word/phrase within a title uses accent_gradient (bottom #915200 to top #ffba00), rest of title is #FFFFFF. Go big and tight: font-size 140px, line-height 1.0, letter-spacing 0px at 1080px canvas width (scale proportionally for other widths). Bump size further before adding a 3rd line — a 2-line title that fills more vertical space reads better than a smaller 3-line one.",
+    "body_rule": "Rawline Bold, #FFFFFF",
+    "detail_rule": "Tags, dividers, quote bars, numbers, small labels/icons use solid accent #ffba00",
+    "top_tag": "Every slide's top-left tag is the literal wordmark \"H . A . M . M . E . R\" (HAMMER method), solid accent color — not a per-slide topic label.",
+    "type_scale_1080_canvas": {
+      "h1_title": "140px / line-height 1.0",
+      "punch_stinger": "60px",
+      "list_item_title": "52px",
+      "quote_text": "33px",
+      "body_text": "38px",
+      "footnote_and_brand_line": "28px",
+      "list_item_body": "28px",
+      "top_tag_and_swipe_hint": "20px / 16px",
+      "cta_action_words": "17px",
+      "author_name": "19px",
+      "citation_mono_and_page_index": "16-17px",
+      "author_sub_small_label": "13px",
+      "note": "Everything scaled up from an earlier pass that read fine on the export file but went illegible once compressed by Instagram's feed/story display — always sanity-check a design at actual Instagram display size (roughly 500-600px wide on a phone), not just at the 4x export resolution. See feedback-prleofelix-carousel-typography memory."
+    }
+  }
+}
