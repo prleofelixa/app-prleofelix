@@ -131,8 +131,10 @@ router.post('/fetch', async (req, res) => {
           weekStart,
           platform: 'instagram',
           tipo: m.media_type || '',
+          formato: instagramApi.mediaFormatLabel(m.media_type, m.media_product_type),
           titulo: (m.caption || '').slice(0, 90) || '(sem legenda)',
           url: m.permalink || '',
+          thumbnail: m.thumbnail_url || m.media_url || null,
           publishedAt: m.timestamp || '',
           likes: m.like_count || 0,
           comments: m.comments_count || 0,
@@ -192,6 +194,48 @@ router.post('/fetch', async (req, res) => {
         avgViewDurationSec: analytics.avgViewDurationSec,
         source: 'auto'
       };
+
+      // Vídeos individuais da semana — pro ranking Top YouTube ficar automático,
+      // não só o agregado do canal.
+      try {
+        const sinceDate = new Date(`${weekStart}T00:00:00-03:00`);
+        const untilDate = new Date(`${weekEnd}T23:59:59-03:00`);
+        const videos = await youtubeApi.fetchVideosPublishedInRange(yt.channelId, sinceDate, untilDate);
+        const videoIds = videos.map(v => v.videoId);
+        const publicStats = await youtubeApi.fetchVideoPublicStats(videoIds);
+        const videoAnalytics = await youtubeApi.fetchVideoAnalytics(refreshed.access_token, videoIds, weekStart, weekEnd);
+
+        const newYtPosts = videos.map(v => {
+          const stats = publicStats[v.videoId] || { views: 0, likes: 0, comments: 0 };
+          const vAnalytics = videoAnalytics[v.videoId] || { watchTimeMinutes: 0, avgViewDurationSec: 0 };
+          return {
+            id: store.newId(),
+            weekStart,
+            platform: 'youtube',
+            tipo: 'video',
+            formato: 'Vídeo',
+            titulo: (v.title || '').slice(0, 90),
+            url: `https://www.youtube.com/watch?v=${v.videoId}`,
+            thumbnail: v.thumbnail,
+            publishedAt: v.publishedAt || '',
+            likes: stats.likes,
+            comments: stats.comments,
+            shares: 0,
+            saves: 0,
+            reach: 0,
+            impressions: 0,
+            views: stats.views,
+            watchTimeMinutes: vAnalytics.watchTimeMinutes,
+            avgViewDurationSec: vAnalytics.avgViewDurationSec,
+            engagementRate: stats.views ? ((stats.likes + stats.comments) / stats.views) * 100 : null,
+            contentId: null
+          };
+        });
+        const otherYtPosts = (await store.getPosts()).filter(p => !(p.weekStart === weekStart && p.platform === 'youtube'));
+        await store.savePosts(otherYtPosts.concat(newYtPosts));
+      } catch (e) {
+        messages.push(`YouTube: falha ao buscar vídeos individuais — ${e.message}`);
+      }
     } catch (e) {
       messages.push(`YouTube: falha ao buscar automaticamente — ${e.message}`);
     }
