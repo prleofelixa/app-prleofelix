@@ -213,6 +213,48 @@ function renderTrends(trends) {
 }
 
 // ============================================================
+// Diagnóstico — cada parágrafo vira um cartão com ícone, categoria e cor
+// (positivo/atenção/neutro), em vez de um bloco de texto corrido.
+// ============================================================
+const DIAG_WARN_WORDS = ['caiu', 'queda', 'nenhum', 'faltam', 'perda', 'desacelerou', 'menor desempenho', 'expirad'];
+const DIAG_GOOD_WORDS = ['cresceu', 'acelerou', 'subiu', 'melhor post'];
+
+function parseDiagLine(line) {
+  const match = line.match(/^(\S+)\s+([^:]+):\s*([\s\S]*)$/);
+  if (!match) return { emoji: '📌', label: '', text: line };
+  return { emoji: match[1], label: match[2], text: match[3] };
+}
+function diagTone(label, text) {
+  const lower = `${label} ${text}`.toLowerCase();
+  if (DIAG_WARN_WORDS.some(k => lower.includes(k))) return 'warn';
+  if (DIAG_GOOD_WORDS.some(k => lower.includes(k))) return 'good';
+  return 'neutral';
+}
+function renderDiagCards(diagnostico) {
+  const paragraphs = (diagnostico || '').split('\n\n').filter(Boolean);
+  let warnCount = 0, goodCount = 0;
+  const items = paragraphs.map(p => {
+    const { emoji, label, text } = parseDiagLine(p);
+    const tone = diagTone(label, text);
+    if (tone === 'warn') warnCount++;
+    if (tone === 'good') goodCount++;
+    return `<div class="diag-item diag-item-${tone}">
+      <div class="diag-item-icon">${emoji}</div>
+      <div class="diag-item-body">
+        <div class="diag-item-label">${esc(label)}</div>
+        <div class="diag-item-text">${esc(text)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  let summary = { text: 'Semana estável', cls: 'neutral' };
+  if (warnCount > goodCount) summary = { text: `${warnCount} ponto${warnCount > 1 ? 's' : ''} de atenção`, cls: 'warn' };
+  else if (goodCount > warnCount) summary = { text: `${goodCount} destaque${goodCount > 1 ? 's' : ''} positivo${goodCount > 1 ? 's' : ''}`, cls: 'good' };
+
+  return { itemsHtml: items, summary };
+}
+
+// ============================================================
 // Views: Relatório da Semana / Comparativo / Visão Geral do Mês
 // ============================================================
 async function renderWeekReport() {
@@ -240,12 +282,23 @@ async function renderWeekReport() {
     ? `<div class="perf-section"><div class="perf-section-title">📝 Notas manuais</div><div class="glass" style="padding:14px 18px;font-size:13px;color:var(--text-secondary);">${esc(current.notasManuais)}</div></div>`
     : '';
 
+  const { itemsHtml: diagItemsHtml, summary: diagSummary } = renderDiagCards(current.diagnostico);
+  const recs = current.recomendacoes || [];
+
   content.innerHTML = `
     <div class="perf-section">
-      <div class="perf-section-title">🎯 Diagnóstico &amp; Recomendações</div>
+      <div class="field-label-row" style="margin-bottom:10px;">
+        <div class="perf-section-title" style="margin:0;">🎯 Diagnóstico da Semana</div>
+        <span class="diag-summary-badge diag-summary-${diagSummary.cls}">${esc(diagSummary.text)}</span>
+      </div>
       <div class="glass diag-card">
-        <p class="diag-text">${esc(current.diagnostico)}</p>
-        <ul class="rec-list">${(current.recomendacoes || []).map(r => `<li class="rec-item">${esc(r)}</li>`).join('')}</ul>
+        <div class="diag-items">${diagItemsHtml}</div>
+        ${recs.length ? `
+          <div class="diag-recs">
+            <div class="diag-section-label">🎯 Recomendações práticas</div>
+            <ul class="rec-list">${recs.map(r => `<li class="rec-item">${esc(r)}</li>`).join('')}</ul>
+          </div>
+        ` : ''}
       </div>
       ${earliestNote}
     </div>

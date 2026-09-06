@@ -649,14 +649,45 @@ h1, h2, h3, h4, .header-title, .logo-title, .btn, .nav-btn, .mode-btn {
 .metric-delta.flat { background: rgba(255,255,255,0.1); color: var(--text-secondary); }
 .metric-sub { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
 
-.diag-card { padding: 20px 22px; }
-.diag-text { white-space: pre-line; font-size: 13.5px; line-height: 1.7; color: var(--text-primary); margin: 0 0 16px 0; }
+.diag-card { padding: 22px 24px; display: flex; flex-direction: column; gap: 20px; }
+
+.diag-summary-badge {
+  font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+  padding: 5px 12px; border-radius: 999px; white-space: nowrap;
+}
+.diag-summary-good { background: rgba(34,197,94,0.16); color: #6ee79a; }
+.diag-summary-warn { background: rgba(234,179,8,0.16); color: #fbd35d; }
+.diag-summary-neutral { background: rgba(59,130,246,0.16); color: #8fbcfb; }
+
+.diag-items { display: flex; flex-direction: column; gap: 8px; }
+.diag-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px; border-radius: 12px;
+  background: rgba(255,255,255,0.025); border: 1px solid var(--glass-border); border-left: 3px solid var(--glass-border);
+}
+.diag-item-icon {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; background: rgba(255,255,255,0.06);
+}
+.diag-item-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.diag-item-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; color: var(--text-secondary); }
+.diag-item-text { font-size: 13.5px; line-height: 1.6; color: var(--text-primary); }
+
+.diag-item-good { border-left-color: var(--accent-green); }
+.diag-item-good .diag-item-icon { background: rgba(34,197,94,0.18); }
+.diag-item-warn { border-left-color: #eab308; }
+.diag-item-warn .diag-item-icon { background: rgba(234,179,8,0.18); }
+.diag-item-neutral { border-left-color: #3b82f6; }
+.diag-item-neutral .diag-item-icon { background: rgba(59,130,246,0.18); }
+
+.diag-recs { padding-top: 4px; border-top: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 10px; }
+.diag-section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); font-weight: 700; }
 .rec-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
 .rec-item {
-  font-size: 12.5px; line-height: 1.55; padding: 9px 12px; border-radius: 10px;
-  background: rgba(255,186,0,0.09); border: 1px solid rgba(255,186,0,0.25); color: #ffe1a3;
+  font-size: 12.5px; line-height: 1.55; padding: 9px 12px 9px 14px; border-radius: 10px;
+  background: rgba(255,186,0,0.09); border: 1px solid rgba(255,186,0,0.25); border-left: 3px solid #ffba00; color: #ffe1a3;
 }
-.rec-item::before { content: "🎯 "; }
 
 .post-rank { display: flex; flex-direction: column; gap: 10px; }
 .post-rank-item {
