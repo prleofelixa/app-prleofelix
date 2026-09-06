@@ -461,9 +461,36 @@
 <div class="modal-overlay" id="perf-post-modal-overlay">
   <div class="modal glass modal-sm">
     <div class="modal-header">
-      <h2>Adicionar post da semana</h2>
+      <h2 id="perf-post-modal-title">Adicionar post da semana</h2>
       <button class="icon-btn" id="perf-post-modal-close">✕</button>
     </div>
+
+    <!-- Visualização somente leitura — um post já registrado é um fato, não um formulário pra editar -->
+    <div id="perf-post-view">
+      <div class="form-grid">
+        <div class="view-field"><label>Plataforma</label><p id="pv-platform"></p></div>
+        <div class="view-field"><label>Publicado em</label><p id="pv-publishedAt"></p></div>
+      </div>
+      <div class="view-field"><label>Título / legenda</label><p id="pv-titulo"></p></div>
+      <div class="view-field"><label>Link</label><p><a id="pv-url" href="#" target="_blank" rel="noopener">—</a></p></div>
+      <div class="form-grid">
+        <div class="view-field"><label>Curtidas</label><p id="pv-likes"></p></div>
+        <div class="view-field"><label>Comentários</label><p id="pv-comments"></p></div>
+        <div class="view-field"><label>Compartilhamentos</label><p id="pv-shares"></p></div>
+        <div class="view-field"><label>Salvamentos</label><p id="pv-saves"></p></div>
+        <div class="view-field"><label>Alcance</label><p id="pv-reach"></p></div>
+        <div class="view-field"><label>Visualizações</label><p id="pv-views"></p></div>
+      </div>
+      <div class="view-field"><label>Taxa de engajamento</label><p id="pv-engagementRate"></p></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="perf-post-delete-btn">Excluir</button>
+        <div class="modal-actions-right">
+          <button type="button" class="btn btn-ghost" id="perf-post-view-close-btn">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulário — só usado pra cadastrar um post novo manualmente -->
     <form id="perf-post-form">
       <div class="form-field">
         <label>Plataforma</label>
@@ -487,7 +514,7 @@
         <input type="number" step="0.01" id="pp-engagementRate">
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn btn-danger" id="perf-post-delete-btn" style="display:none;">Excluir</button>
+        <div></div>
         <div class="modal-actions-right">
           <button type="button" class="btn btn-ghost" id="perf-post-cancel-btn">Cancelar</button>
           <button type="submit" class="btn btn-green">Salvar</button>

@@ -421,6 +421,12 @@ h1, h2, h3, h4, .header-title, .logo-title, .btn, .nav-btn, .mode-btn {
 
 .field-hint { text-transform: none; font-weight: 400; color: var(--text-tertiary); font-size: 11px; letter-spacing: 0; }
 
+.view-field { margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px; }
+.view-field label { font-size: 12px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.view-field p { margin: 0; font-size: 13.5px; color: var(--text-primary); }
+.view-field a { color: #8fbcfb; text-decoration: none; word-break: break-all; }
+.view-field a:hover { text-decoration: underline; }
+
 .multiselect { position: relative; }
 .multiselect-toggle {
   width: 100%;

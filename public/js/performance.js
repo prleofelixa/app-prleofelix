@@ -150,8 +150,14 @@ function renderPostRank(posts) {
     bestId = sorted[0].id;
     worstId = sorted.length > 1 ? sorted[sorted.length - 1].id : null;
   }
-  const items = posts.length
-    ? posts.map(p => {
+  // Melhor e pior sempre no topo da lista, nessa ordem — o resto mantém a ordem original.
+  const bestPost = posts.find(p => p.id === bestId);
+  const worstPost = posts.find(p => p.id === worstId);
+  const others = posts.filter(p => p.id !== bestId && p.id !== worstId);
+  const ordered = [bestPost, worstPost, ...others].filter(Boolean);
+
+  const items = ordered.length
+    ? ordered.map(p => {
       const badge = p.id === bestId
         ? '<span class="post-rank-badge best">Melhor</span>'
         : (p.id === worstId ? '<span class="post-rank-badge worst">Pior</span>' : '');
@@ -492,19 +498,53 @@ document.getElementById('perf-fetch-btn').addEventListener('click', async () => 
 // ============================================================
 // Modal: post da semana
 // ============================================================
+function fmtDateTimeP(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString('pt-BR');
+}
+
+// Um post já registrado é um fato (veio da API ou já foi lançado) — mostra
+// só leitura + link clicável, nunca um formulário editável. Só cadastrar um
+// post novo usa o formulário.
 function openPerfPostModal(post) {
   perfState.editingPostId = post ? post.id : null;
-  document.getElementById('pp-platform').value = post ? post.platform : 'instagram';
-  setVal('pp-titulo', post ? post.titulo : '');
-  setVal('pp-url', post ? post.url : '');
-  setVal('pp-likes', post ? post.likes : '');
-  setVal('pp-comments', post ? post.comments : '');
-  setVal('pp-shares', post ? post.shares : '');
-  setVal('pp-saves', post ? post.saves : '');
-  setVal('pp-reach', post ? post.reach : '');
-  setVal('pp-views', post ? post.views : '');
-  setVal('pp-engagementRate', post ? post.engagementRate : '');
-  document.getElementById('perf-post-delete-btn').style.display = post ? 'inline-flex' : 'none';
+  const view = document.getElementById('perf-post-view');
+  const form = document.getElementById('perf-post-form');
+  const title = document.getElementById('perf-post-modal-title');
+
+  if (post) {
+    title.textContent = 'Post da semana';
+    view.style.display = 'block';
+    form.style.display = 'none';
+    document.getElementById('pv-platform').textContent = post.platform === 'youtube' ? 'YouTube' : 'Instagram';
+    document.getElementById('pv-publishedAt').textContent = fmtDateTimeP(post.publishedAt);
+    document.getElementById('pv-titulo').textContent = post.titulo || '—';
+    const link = document.getElementById('pv-url');
+    if (post.url) { link.href = post.url; link.textContent = post.url; }
+    else { link.removeAttribute('href'); link.textContent = '—'; }
+    document.getElementById('pv-likes').textContent = fmtNumP(post.likes);
+    document.getElementById('pv-comments').textContent = fmtNumP(post.comments);
+    document.getElementById('pv-shares').textContent = fmtNumP(post.shares);
+    document.getElementById('pv-saves').textContent = fmtNumP(post.saves);
+    document.getElementById('pv-reach').textContent = fmtNumP(post.reach);
+    document.getElementById('pv-views').textContent = fmtNumP(post.views);
+    document.getElementById('pv-engagementRate').textContent = post.engagementRate != null ? `${post.engagementRate.toFixed(2)}%` : '—';
+  } else {
+    title.textContent = 'Adicionar post da semana';
+    view.style.display = 'none';
+    form.style.display = 'block';
+    document.getElementById('pp-platform').value = 'instagram';
+    setVal('pp-titulo', '');
+    setVal('pp-url', '');
+    setVal('pp-likes', '');
+    setVal('pp-comments', '');
+    setVal('pp-shares', '');
+    setVal('pp-saves', '');
+    setVal('pp-reach', '');
+    setVal('pp-views', '');
+    setVal('pp-engagementRate', '');
+  }
   document.getElementById('perf-post-modal-overlay').classList.add('active');
 }
 function closePerfPostModal() {
@@ -521,6 +561,7 @@ document.getElementById('perf-content').addEventListener('click', (e) => {
 });
 document.getElementById('perf-post-modal-close').addEventListener('click', closePerfPostModal);
 document.getElementById('perf-post-cancel-btn').addEventListener('click', closePerfPostModal);
+document.getElementById('perf-post-view-close-btn').addEventListener('click', closePerfPostModal);
 document.getElementById('perf-post-modal-overlay').addEventListener('click', (e) => {
   if (e.target === document.getElementById('perf-post-modal-overlay')) closePerfPostModal();
 });
@@ -543,15 +584,9 @@ document.getElementById('perf-post-form').addEventListener('submit', async (e) =
     views: numOrNull('pp-views') || 0,
     engagementRate
   };
-  if (perfState.editingPostId) {
-    await perfFetchJson(`/api/social/posts/${perfState.editingPostId}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-    });
-  } else {
-    await perfFetchJson('/api/social/posts', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-    });
-  }
+  await perfFetchJson('/api/social/posts', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+  });
   closePerfPostModal();
   renderPerfContent();
 });
