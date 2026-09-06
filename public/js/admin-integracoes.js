@@ -63,6 +63,9 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
   if (params.get('connected')) {
     showBanner(`${params.get('connected') === 'instagram' ? 'Instagram' : 'YouTube'} conectado com sucesso.`, 'ok');
     history.replaceState({}, '', location.pathname);
+  } else if (params.get('warning')) {
+    showBanner(params.get('warning'), 'warn');
+    history.replaceState({}, '', location.pathname);
   } else if (params.get('error')) {
     showBanner(params.get('error'), 'error');
     history.replaceState({}, '', location.pathname);

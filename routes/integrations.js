@@ -45,15 +45,19 @@ router.get('/instagram/callback', async (req, res) => {
   try {
     const short = await instagramApi.exchangeCodeForShortToken(code);
     const long = await instagramApi.exchangeForLongLivedToken(short.access_token);
-    const account = await instagramApi.findInstagramAccount(long.accessToken);
-    const profile = await instagramApi.fetchProfile(account.igUserId, long.accessToken);
+    const preferredUsername = process.env.INSTAGRAM_USERNAME || 'prleofelix';
+    const account = await instagramApi.findInstagramAccount(long.accessToken, preferredUsername);
     integrationsStore.setInstagram({
       accessToken: long.accessToken,
       expiresAt: Date.now() + (long.expiresInSec || 60 * 24 * 60 * 60) * 1000,
       igUserId: account.igUserId,
       pageId: account.pageId,
-      accountName: `@${profile.username} (${account.pageName})`
+      accountName: `@${account.igUsername} (${account.pageName})`
     });
+    if (!account.matched) {
+      const warning = `Conectamos @${account.igUsername} porque @${preferredUsername} não apareceu entre as Páginas que você administra nesta autorização (encontradas: ${account.candidates.join(', ') || 'nenhuma'}). Desconecte e conecte de novo, ou verifique se @${preferredUsername} está entre as contas do Instagram vinculadas às suas Páginas do Facebook.`;
+      return res.redirect(`/admin-integracoes.html?warning=${encodeURIComponent(warning)}`);
+    }
     res.redirect('/admin-integracoes.html?connected=instagram');
   } catch (e) {
     res.redirect(`/admin-integracoes.html?error=${encodeURIComponent(e.message)}`);
