@@ -21,8 +21,8 @@ function consumeState(state) {
   return !!expiresAt && Date.now() < expiresAt;
 }
 
-router.get('/status', (req, res) => {
-  res.json(integrationsStore.getStatus());
+router.get('/status', async (req, res) => {
+  res.json(await integrationsStore.getStatus());
 });
 
 // ---------- Instagram ----------
@@ -47,7 +47,7 @@ router.get('/instagram/callback', async (req, res) => {
     const long = await instagramApi.exchangeForLongLivedToken(short.access_token);
     const preferredUsername = process.env.INSTAGRAM_USERNAME || 'prleofelix';
     const account = await instagramApi.findInstagramAccount(long.accessToken, preferredUsername);
-    integrationsStore.setInstagram({
+    await integrationsStore.setInstagram({
       accessToken: long.accessToken,
       expiresAt: Date.now() + (long.expiresInSec || 60 * 24 * 60 * 60) * 1000,
       igUserId: account.igUserId,
@@ -64,8 +64,8 @@ router.get('/instagram/callback', async (req, res) => {
   }
 });
 
-router.post('/instagram/disconnect', (req, res) => {
-  integrationsStore.clearInstagram();
+router.post('/instagram/disconnect', async (req, res) => {
+  await integrationsStore.clearInstagram();
   res.json({ ok: true });
 });
 
@@ -92,7 +92,7 @@ router.get('/youtube/callback', async (req, res) => {
       return res.redirect('/admin-integracoes.html?error=' + encodeURIComponent('O Google não retornou um refresh token. Desconecte o acesso do app em myaccount.google.com/permissions e tente conectar de novo.'));
     }
     const channel = await youtubeApi.fetchMyChannelId(tokens.access_token);
-    integrationsStore.setYoutube({
+    await integrationsStore.setYoutube({
       refreshToken: tokens.refresh_token,
       channelId: channel.channelId,
       accountName: channel.title
@@ -103,8 +103,8 @@ router.get('/youtube/callback', async (req, res) => {
   }
 });
 
-router.post('/youtube/disconnect', (req, res) => {
-  integrationsStore.clearYoutube();
+router.post('/youtube/disconnect', async (req, res) => {
+  await integrationsStore.clearYoutube();
   res.json({ ok: true });
 });
 

@@ -9,47 +9,47 @@ const { requireAuth } = require('../lib/auth');
 const router = express.Router();
 router.use(requireAuth);
 
-router.get('/config', (req, res) => {
+router.get('/config', async (req, res) => {
   res.json({
     currentWeekStart: weekUtils.currentWeekStart(),
-    earliestWeekStart: store.earliestWeekStart()
+    earliestWeekStart: await store.earliestWeekStart()
   });
 });
 
-router.get('/report', (req, res) => {
+router.get('/report', async (req, res) => {
   const weekStart = req.query.weekStart || weekUtils.currentWeekStart();
-  res.json(store.getReport(weekStart));
+  res.json(await store.getReport(weekStart));
 });
 
-router.put('/snapshots/:weekStart', (req, res) => {
+router.put('/snapshots/:weekStart', async (req, res) => {
   const { weekStart } = req.params;
   const canonical = weekUtils.weekStartFor(weekStart);
   if (canonical !== weekStart) {
     return res.status(400).json({ error: `weekStart precisa ser uma segunda-feira (ex.: ${canonical}).` });
   }
   const { instagram, stories, youtube, notasManuais } = req.body || {};
-  const snapshot = store.upsertSnapshot(weekStart, { instagram, stories, youtube, notasManuais });
+  const snapshot = await store.upsertSnapshot(weekStart, { instagram, stories, youtube, notasManuais });
   res.json(snapshot);
 });
 
-router.get('/month', (req, res) => {
+router.get('/month', async (req, res) => {
   const month = req.query.month || weekUtils.monthOfWeek(weekUtils.currentWeekStart());
-  res.json(store.buildMonthOverview(month));
+  res.json(await store.buildMonthOverview(month));
 });
 
-router.get('/trends', (req, res) => {
+router.get('/trends', async (req, res) => {
   const weeks = Number(req.query.weeks) || 8;
-  res.json(store.getTrends(weeks));
+  res.json(await store.getTrends(weeks));
 });
 
 // ---------- Posts da semana ----------
 
-router.get('/posts', (req, res) => {
+router.get('/posts', async (req, res) => {
   const weekStart = req.query.weekStart || weekUtils.currentWeekStart();
-  res.json(store.postsForWeek(weekStart));
+  res.json(await store.postsForWeek(weekStart));
 });
 
-router.post('/posts', (req, res) => {
+router.post('/posts', async (req, res) => {
   const body = req.body || {};
   const weekStart = body.weekStart || weekUtils.currentWeekStart();
   const post = {
@@ -70,27 +70,27 @@ router.post('/posts', (req, res) => {
     engagementRate: body.engagementRate != null ? Number(body.engagementRate) : null,
     contentId: body.contentId || null
   };
-  const posts = store.getPosts();
+  const posts = await store.getPosts();
   posts.push(post);
-  store.savePosts(posts);
+  await store.savePosts(posts);
   res.status(201).json(post);
 });
 
-router.put('/posts/:id', (req, res) => {
-  const posts = store.getPosts();
+router.put('/posts/:id', async (req, res) => {
+  const posts = await store.getPosts();
   const idx = posts.findIndex(p => p.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Post não encontrado.' });
   posts[idx] = { ...posts[idx], ...req.body, id: posts[idx].id };
-  store.savePosts(posts);
+  await store.savePosts(posts);
   res.json(posts[idx]);
 });
 
-router.delete('/posts/:id', (req, res) => {
-  const posts = store.getPosts();
+router.delete('/posts/:id', async (req, res) => {
+  const posts = await store.getPosts();
   const idx = posts.findIndex(p => p.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Post não encontrado.' });
   posts.splice(idx, 1);
-  store.savePosts(posts);
+  await store.savePosts(posts);
   res.json({ ok: true });
 });
 
@@ -104,7 +104,7 @@ router.post('/fetch', async (req, res) => {
   const patch = { instagram: {}, stories: {}, youtube: {} };
   const messages = [];
 
-  const ig = integrationsStore.getInstagram();
+  const ig = await integrationsStore.getInstagram();
   if (ig && ig.accessToken) {
     try {
       const sinceUnix = Math.floor(new Date(`${weekStart}T00:00:00-03:00`).getTime() / 1000);
@@ -146,8 +146,8 @@ router.post('/fetch', async (req, res) => {
         });
       }
 
-      const otherPosts = store.getPosts().filter(p => !(p.weekStart === weekStart && p.platform === 'instagram'));
-      store.savePosts(otherPosts.concat(newPosts));
+      const otherPosts = (await store.getPosts()).filter(p => !(p.weekStart === weekStart && p.platform === 'instagram'));
+      await store.savePosts(otherPosts.concat(newPosts));
 
       const stories = await instagramApi.fetchStoriesSince(ig.igUserId, ig.accessToken, sinceUnix, untilUnix);
       let storyViews = 0, storyReplies = 0, storyExits = 0;
@@ -178,7 +178,7 @@ router.post('/fetch', async (req, res) => {
     messages.push('Instagram não conectado — os números desta semana precisam ser lançados manualmente (ou conecte em Administração de Integrações).');
   }
 
-  const yt = integrationsStore.getYoutube();
+  const yt = await integrationsStore.getYoutube();
   if (yt && yt.refreshToken) {
     try {
       const refreshed = await youtubeApi.refreshAccessToken(yt.refreshToken);
@@ -200,13 +200,13 @@ router.post('/fetch', async (req, res) => {
   }
 
   // impressions/ctr do YouTube são sempre manuais (limitação da API) — nunca sobrescrever.
-  const existing = store.findSnapshot(weekStart);
+  const existing = await store.findSnapshot(weekStart);
   if (existing && existing.youtube) {
     if (existing.youtube.impressions != null) patch.youtube.impressions = existing.youtube.impressions;
     if (existing.youtube.ctr != null) patch.youtube.ctr = existing.youtube.ctr;
   }
 
-  const snapshot = store.upsertSnapshot(weekStart, patch);
+  const snapshot = await store.upsertSnapshot(weekStart, patch);
   res.json({ snapshot, messages });
 });
 
