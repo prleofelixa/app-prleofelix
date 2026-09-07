@@ -114,6 +114,13 @@ router.post('/fetch', async (req, res) => {
       const insights = await instagramApi.fetchWeeklyInsights(ig.igUserId, ig.accessToken, sinceUnix, untilUnix);
       const media = await instagramApi.fetchMediaSince(ig.igUserId, ig.accessToken, sinceUnix, untilUnix);
 
+      let newFollowers = null, lostFollowers = null;
+      try {
+        const fu = await instagramApi.fetchFollowsAndUnfollows(ig.igUserId, ig.accessToken, sinceUnix, untilUnix);
+        newFollowers = fu.gained;
+        lostFollowers = fu.lost;
+      } catch (e) { /* métrica pode não estar disponível pra todas as contas — segue sem quebrar o resto */ }
+
       let likesSum = 0, commentsSum = 0, sharesSum = 0, savesSum = 0;
       const newPosts = [];
       for (const m of media) {
@@ -163,6 +170,8 @@ router.post('/fetch', async (req, res) => {
 
       patch.instagram = {
         followers: profile.followers_count,
+        newFollowers,
+        lostFollowers,
         reach: insights.reach,
         impressions: insights.impressions,
         profileVisits: insights.profileVisits,
@@ -189,6 +198,7 @@ router.post('/fetch', async (req, res) => {
       patch.youtube = {
         subscribers: channel.subscribers,
         subscribersGained: analytics.subscribersGained,
+        subscribersLost: analytics.subscribersLost,
         views: analytics.views,
         watchTimeHours: analytics.watchTimeHours,
         avgViewDurationSec: analytics.avgViewDurationSec,

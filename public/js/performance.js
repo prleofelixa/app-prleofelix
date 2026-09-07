@@ -146,11 +146,14 @@ function execHeader(weekStart, weekEnd, diagnosticoItems, updatedAt) {
 // ============================================================
 // KPIs grandes
 // ============================================================
-function execKpi(label, value, delta, sub) {
+function execKpi(label, value, delta, sub, invert) {
+  const cls = delta !== null && delta !== undefined && delta !== 'na'
+    ? (invert ? { up: 'down', down: 'up', flat: 'flat' }[deltaClass(delta)] : deltaClass(delta))
+    : null;
   const deltaHtml = delta === 'na'
     ? `<span class="exec-kpi-delta na">Primeira semana registrada</span>`
     : (delta !== null && delta !== undefined
-      ? `<span class="exec-kpi-delta ${deltaClass(delta)}">${deltaArrow(delta)} ${fmtPctP(delta)}</span>`
+      ? `<span class="exec-kpi-delta ${cls}">${deltaArrow(delta)} ${fmtPctP(delta)}</span>`
       : (sub ? `<span class="exec-kpi-delta na">${esc(sub)}</span>` : ''));
   return `<div class="glass exec-kpi">
     <span class="exec-kpi-label">${esc(label)}</span>
@@ -658,6 +661,8 @@ async function renderInstagramTab() {
       <div class="exec-section-head"><span class="exec-section-title">Crescimento &amp; Alcance</span></div>
       <div class="exec-kpis">
         ${execKpi('Seguidores', fmtNumP(ig.followers), previous ? (ig.followersGrowthPct ?? pctChangeClient(ig.followers, igPrev.followers)) : 'na')}
+        ${execKpi('Novos seguidores', ig.newFollowers != null ? `+${fmtNumP(ig.newFollowers)}` : '<span class="na-value">Não disponível</span>', previous ? pctChangeClient(ig.newFollowers, igPrev.newFollowers) : 'na')}
+        ${execKpi('Deixaram de seguir', ig.lostFollowers != null ? `-${fmtNumP(ig.lostFollowers)}` : '<span class="na-value">Não disponível</span>', previous ? pctChangeClient(ig.lostFollowers, igPrev.lostFollowers) : 'na', null, true)}
         ${execKpi('Alcance', fmtNumP(ig.reach), previous ? pctChangeClient(ig.reach, igPrev.reach) : 'na')}
         ${execKpi('Impressões', fmtNumP(ig.impressions), previous ? pctChangeClient(ig.impressions, igPrev.impressions) : 'na')}
         ${execKpi('Visitas ao perfil', fmtNumP(ig.profileVisits), previous ? pctChangeClient(ig.profileVisits, igPrev.profileVisits) : 'na')}
@@ -745,7 +750,8 @@ async function renderYoutubeTab() {
       <div class="exec-section-head"><span class="exec-section-title">Audiência</span></div>
       <div class="exec-kpis">
         ${execKpi('Inscritos', fmtNumP(yt.subscribers), previous ? pctChangeClient(yt.subscribers, ytPrev.subscribers) : 'na')}
-        ${execKpi('Novos inscritos', `${yt.subscribersGained >= 0 ? '+' : ''}${fmtNumP(yt.subscribersGained)}`, previous ? pctChangeClient(yt.subscribersGained, ytPrev.subscribersGained) : 'na')}
+        ${execKpi('Novos inscritos', yt.subscribersGained != null ? `+${fmtNumP(yt.subscribersGained)}` : '<span class="na-value">Não disponível</span>', previous ? pctChangeClient(yt.subscribersGained, ytPrev.subscribersGained) : 'na')}
+        ${execKpi('Cancelaram inscrição', yt.subscribersLost != null ? `-${fmtNumP(yt.subscribersLost)}` : '<span class="na-value">Não disponível</span>', previous ? pctChangeClient(yt.subscribersLost, ytPrev.subscribersLost) : 'na', null, true)}
         ${execKpi('Visualizações', fmtNumP(yt.views), previous ? pctChangeClient(yt.views, ytPrev.views) : 'na')}
       </div>
     </div>
@@ -808,6 +814,8 @@ function buildComparativoRows(current, previous) {
   const yt = current.youtube || {}, ytP = previous.youtube || {};
   return [
     comparativoRow('Seguidores', igP.followers, ig.followers),
+    comparativoRow('Novos seguidores', igP.newFollowers, ig.newFollowers),
+    comparativoRow('Deixaram de seguir', igP.lostFollowers, ig.lostFollowers),
     comparativoRow('Alcance', igP.reach, ig.reach),
     comparativoRow('Impressões', igP.impressions, ig.impressions),
     comparativoRow('Visitas ao perfil', igP.profileVisits, ig.profileVisits),
@@ -820,6 +828,7 @@ function buildComparativoRows(current, previous) {
     comparativoRow('Visualizações de stories', stP.views, st.views),
     comparativoRow('Inscritos YouTube', ytP.subscribers, yt.subscribers),
     comparativoRow('Inscritos ganhos', ytP.subscribersGained, yt.subscribersGained),
+    comparativoRow('Inscritos cancelados', ytP.subscribersLost, yt.subscribersLost),
     comparativoRow('Views YouTube', ytP.views, yt.views),
     comparativoRow('Tempo de exibição (h)', ytP.watchTimeHours, yt.watchTimeHours),
     comparativoRow('Duração média (s)', ytP.avgViewDurationSec, yt.avgViewDurationSec),
@@ -868,7 +877,7 @@ async function renderMonthOverview() {
   const cards = [
     metricCard({
       icon: '📈', title: 'Seguidores no mês', main: fmtNumP(ig.followersEnd),
-      sub: `${ig.followersGrowth >= 0 ? '+' : ''}${fmtNumP(ig.followersGrowth)} no mês (de ${fmtNumP(ig.followersStart)})`
+      sub: `${ig.followersGrowth >= 0 ? '+' : ''}${fmtNumP(ig.followersGrowth)} no mês (de ${fmtNumP(ig.followersStart)}) · ${fmtNumP(ig.newFollowers)} novos, ${fmtNumP(ig.lostFollowers)} deixaram de seguir`
     }),
     metricCard({ icon: '👁️', title: 'Alcance total', main: fmtNumP(ig.reach), sub: `${fmtNumP(ig.impressions)} impressões somadas` }),
     metricCard({
@@ -877,8 +886,8 @@ async function renderMonthOverview() {
     }),
     metricCard({ icon: '🎬', title: 'Stories no mês', main: `${fmtNumP(st.published)} publicados`, sub: `${fmtNumP(st.views)} visualizações somadas` }),
     metricCard({
-      icon: '▶️', title: 'YouTube no mês', main: `${yt.subscribersGained >= 0 ? '+' : ''}${fmtNumP(yt.subscribersGained)} inscritos`,
-      sub: `${fmtNumP(yt.views)} views · ${fmtNumP(yt.watchTimeHours)}h exibição`
+      icon: '▶️', title: 'YouTube no mês', main: `+${fmtNumP(yt.subscribersGained)} inscritos`,
+      sub: `${fmtNumP(yt.subscribersLost)} cancelaram · ${fmtNumP(yt.views)} views · ${fmtNumP(yt.watchTimeHours)}h exibição`
     })
   ].join('');
   const missingNote = data.missingWeeks.length
@@ -956,6 +965,8 @@ function openPerfModal(snapshot) {
   const s = snapshot || { instagram: {}, stories: {}, youtube: {}, notasManuais: '' };
   document.getElementById('perf-modal-title').textContent = `Lançar números — semana de ${brDate(perfState.weekStart)}`;
   setVal('pf-ig-followers', s.instagram.followers);
+  setVal('pf-ig-newFollowers', s.instagram.newFollowers);
+  setVal('pf-ig-lostFollowers', s.instagram.lostFollowers);
   setVal('pf-ig-reach', s.instagram.reach);
   setVal('pf-ig-impressions', s.instagram.impressions);
   setVal('pf-ig-profileVisits', s.instagram.profileVisits);
@@ -970,6 +981,7 @@ function openPerfModal(snapshot) {
   setVal('pf-st-exits', s.stories.exits);
   setVal('pf-yt-subscribers', s.youtube.subscribers);
   setVal('pf-yt-subscribersGained', s.youtube.subscribersGained);
+  setVal('pf-yt-subscribersLost', s.youtube.subscribersLost);
   setVal('pf-yt-views', s.youtube.views);
   setVal('pf-yt-watchTimeHours', s.youtube.watchTimeHours);
   setVal('pf-yt-avgViewDurationSec', s.youtube.avgViewDurationSec);
@@ -996,7 +1008,9 @@ document.getElementById('perf-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const payload = {
     instagram: {
-      followers: numOrNull('pf-ig-followers'), reach: numOrNull('pf-ig-reach'),
+      followers: numOrNull('pf-ig-followers'),
+      newFollowers: numOrNull('pf-ig-newFollowers'), lostFollowers: numOrNull('pf-ig-lostFollowers'),
+      reach: numOrNull('pf-ig-reach'),
       impressions: numOrNull('pf-ig-impressions'), profileVisits: numOrNull('pf-ig-profileVisits'),
       likes: numOrNull('pf-ig-likes'), comments: numOrNull('pf-ig-comments'),
       shares: numOrNull('pf-ig-shares'), saves: numOrNull('pf-ig-saves'),
@@ -1010,6 +1024,7 @@ document.getElementById('perf-form').addEventListener('submit', async (e) => {
     },
     youtube: {
       subscribers: numOrNull('pf-yt-subscribers'), subscribersGained: numOrNull('pf-yt-subscribersGained'),
+      subscribersLost: numOrNull('pf-yt-subscribersLost'),
       views: numOrNull('pf-yt-views'), watchTimeHours: numOrNull('pf-yt-watchTimeHours'),
       avgViewDurationSec: numOrNull('pf-yt-avgViewDurationSec'),
       impressions: numOrNull('pf-yt-impressions'), ctr: numOrNull('pf-yt-ctr'),
