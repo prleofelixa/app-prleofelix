@@ -650,7 +650,7 @@ async function renderInstagramTab() {
 
   content.innerHTML = `
     <div class="platform-tab-header">
-      <div class="platform-tab-icon instagram">📷</div>
+      <div class="platform-tab-icon instagram"><img src="/img/icone_instagram.png" alt="Instagram"></div>
       <div><div class="platform-tab-name">Instagram · @prleofelix</div><div class="platform-tab-handle">${brDate(perfState.weekStart)} — ${brDate(weekEnd)}</div></div>
     </div>
 
@@ -737,7 +737,7 @@ async function renderYoutubeTab() {
 
   content.innerHTML = `
     <div class="platform-tab-header">
-      <div class="platform-tab-icon youtube">▶️</div>
+      <div class="platform-tab-icon youtube"><img src="/img/icone_youtube.png" alt="YouTube"></div>
       <div><div class="platform-tab-name">YouTube · PrLeofelix</div><div class="platform-tab-handle">${brDate(perfState.weekStart)} — ${brDate(weekEnd)}</div></div>
     </div>
 
